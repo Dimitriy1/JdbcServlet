@@ -4,6 +4,7 @@ name VARCHAR(45),
 login VARCHAR(45),
 password VARCHAR(45),
 email VARCHAR(45),
+token  VARCHAR(90), 
 PRIMARY KEY(id)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
