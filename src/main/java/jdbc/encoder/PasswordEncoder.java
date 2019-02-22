@@ -9,6 +9,7 @@ public class PasswordEncoder {
         for (int i = 0; i < arr.length; i++) {
             result += (byte) (arr[i] ^ keyarr[i % keyarr.length]);
         }
+
         return result;
     }
 }

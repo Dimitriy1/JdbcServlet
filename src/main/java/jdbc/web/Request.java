@@ -24,6 +24,14 @@ public class Request {
         POST
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public RequestMethod getMethod() {
+        return method;
+    }
+    
     public  static Request of(String url, RequestMethod method){
         return new Request(url, method,new HashMap<>());
     }

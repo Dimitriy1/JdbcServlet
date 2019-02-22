@@ -1,6 +1,6 @@
 package jdbc.dao;
 
-import jdbc.model.LoginToken;
+import jdbc.model.Role;
 import jdbc.model.User;
 
 public interface UserDao {
@@ -9,5 +9,8 @@ public interface UserDao {
     User findByLogin(String login);
 
     User findByToken(String token);
+
+    void addRoleForUser(User user, Role role);
+
 }
 

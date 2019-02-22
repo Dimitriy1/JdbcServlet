@@ -3,8 +3,12 @@ package jdbc.config;
 import jdbc.ConnectionUtil;
 import jdbc.controllers.LoginController;
 import jdbc.controllers.RegisterController;
+import jdbc.dao.RoleDao;
+import jdbc.dao.RoleDaoImpl;
 import jdbc.dao.UserDao;
 import jdbc.dao.UserDaoImpl;
+import jdbc.service.RoleService;
+import jdbc.service.RoleServiceImpl;
 import jdbc.service.UserService;
 import jdbc.service.UserServiceImpl;
 
@@ -21,7 +25,7 @@ public class Factory {
     }
 
     public static RegisterController getRegisterController() {
-        return new RegisterController(getUserService());
+        return new RegisterController(getUserService(),getRoleService());
     }
 
     public static LoginController getLoginController() {
@@ -33,7 +37,15 @@ public class Factory {
 
     }
 
+    public static RoleService getRoleService() {
+        return new RoleServiceImpl(getRoleDao());
+    }
+
     public static UserDao getUserDao() {
         return new UserDaoImpl(CONNECTION);
+    }
+
+    public static RoleDao getRoleDao() {
+        return new RoleDaoImpl(CONNECTION);
     }
 }

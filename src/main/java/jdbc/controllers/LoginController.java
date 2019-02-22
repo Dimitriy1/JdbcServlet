@@ -22,7 +22,7 @@ public class LoginController implements Controller {
         String login = request.getParameterByName("login-user");
         String password = request.getParameterByName("login-password");
         User user = userService.isLoggedIn(login, encrypt(password,"20"));
-
+        
         if (user != null) {
             return processAuthorize(user);
         } else {

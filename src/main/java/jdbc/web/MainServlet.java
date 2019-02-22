@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
 import static jdbc.web.Request.RequestMethod.GET;
 import static jdbc.web.Request.RequestMethod.POST;
@@ -29,6 +31,12 @@ public class MainServlet extends HttpServlet {
                 Factory.getRegisterController());
         controllers.put(Request.of("/servlet/home", GET),
                 r -> ViewModel.of("home"));
+        controllers.put(Request.of("/servlet/admin", GET),
+                r -> ViewModel.of("admin"));
+        controllers.put(Request.of("/servlet/user", GET),
+                r -> ViewModel.of("user"));
+        controllers.put(Request.of("/servlet/403", GET),
+                r -> ViewModel.of("403"));
     }
 
     @Override
@@ -52,13 +60,24 @@ public class MainServlet extends HttpServlet {
             res.addCookie(cookie);
         }
 
-        if (req.getMethod().equals("POST") && path.equals("/servlet/login")) {
+        if (req.getMethod().equals("POST") && path.equals("/servlet/login") && vm.getView().equals("home")) {
             req.getSession().setAttribute("LOGGED_USER", new User());
+            res.sendRedirect("/Lab8_war_exploded/servlet/home");
+        } else if (req.getMethod().equals("POST") && path.equals("/servlet/register")) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/login");
+        } else if (req.getMethod().equals("GET")
+                && (path.equals("/servlet/home") || path.equals("/servlet/user")
+                || path.equals("/servlet/admin") || path.equals("/servlet/403"))
+                && req.getSession().getAttribute("LOGGED_USER") == null) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/login");
+        } else if (req.getSession().getAttribute("LOGGED_USER") != null
+                && (path.equals("/servlet/register") || path.equals("/servlet/login"))
+                && req.getMethod().equals("GET")) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/home");
+        } else {
+            req.getRequestDispatcher(String.format(redirectUrl, vm.getView()))
+                    .forward(req, res);
         }
-
-        req.getRequestDispatcher(String.format(redirectUrl, vm.getView()))
-                .forward(req, res);
-
     }
 
     private void process(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -69,5 +88,4 @@ public class MainServlet extends HttpServlet {
         ViewModel vm = controller.process(r);
         sendResponse(vm, req, res);
     }
-
 }

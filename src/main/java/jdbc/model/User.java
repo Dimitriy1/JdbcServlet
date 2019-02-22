@@ -1,6 +1,8 @@
 package jdbc.model;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class User {
     private Integer id;
@@ -9,6 +11,7 @@ public class User {
     private String password;
     private String email;
     private String token;
+    private Set<Role> roles = new LinkedHashSet<>();
 
     public User() {
 
@@ -65,6 +68,18 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void addRole(Role role) {
+        roles.add(role);
     }
 
     @Override
