@@ -51,7 +51,7 @@ public class UserFilter implements Filter {
                     || path.equals("/servlet/admin")
                     || path.equals("/servlet/403")){
                 processAuthorized(servletRequest, servletResponse, filterChain);
-            } else{
+            } else {
                 processUnAuthorized(req, res);
             }
         } else {
