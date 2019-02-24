@@ -50,9 +50,7 @@ public class UserFilter implements Filter {
         }
 
         if (token == null) {
-            if (path.equals("/servlet/login")
-                    || path.equals("/servlet/register")
-                    || path.equals("/servlet/403")) {
+            if (path.equals("/servlet/login") || path.equals("/servlet/register")) {
                 processAuthorized(servletRequest, servletResponse, filterChain);
             } else {
                 processUnAuthorized(req, res);
