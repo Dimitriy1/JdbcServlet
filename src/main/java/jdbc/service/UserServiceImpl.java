@@ -1,6 +1,7 @@
 package jdbc.service;
 
 import jdbc.dao.UserDao;
+import jdbc.model.Role;
 import jdbc.model.User;
 
 public class UserServiceImpl implements UserService {
@@ -23,5 +24,10 @@ public class UserServiceImpl implements UserService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void addRoleForUser(User user, Role role) {
+        userDao.addRoleForUser(user, role);
     }
 }

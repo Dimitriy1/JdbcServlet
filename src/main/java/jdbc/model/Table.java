@@ -4,5 +4,7 @@ public enum Table {
     CUSTOMER,
     DEVELOPER,
     PROJECT,
-    SKILL
+    SKILL,
+    USER,
+    ROLE
 }

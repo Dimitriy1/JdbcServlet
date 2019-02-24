@@ -9,8 +9,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
 import static jdbc.web.Request.RequestMethod.GET;
 import static jdbc.web.Request.RequestMethod.POST;
@@ -29,6 +32,12 @@ public class MainServlet extends HttpServlet {
                 Factory.getRegisterController());
         controllers.put(Request.of("/servlet/home", GET),
                 r -> ViewModel.of("home"));
+        controllers.put(Request.of("/servlet/admin", GET),
+                r -> ViewModel.of("admin"));
+        controllers.put(Request.of("/servlet/user", GET),
+                r -> ViewModel.of("user"));
+        controllers.put(Request.of("/servlet/403", GET),
+                r -> ViewModel.of("403"));
     }
 
     @Override
@@ -52,13 +61,40 @@ public class MainServlet extends HttpServlet {
             res.addCookie(cookie);
         }
 
-        if (req.getMethod().equals("POST") && path.equals("/servlet/login")) {
+        if (isPressedLoginFormButton(req, path, vm)) {
             req.getSession().setAttribute("LOGGED_USER", new User());
+            res.sendRedirect("/Lab8_war_exploded/servlet/home");
+        } else if (isRegistered(req, path)) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/login");
+        } else if (isNoRegistered(req, path)) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/login");
+        } else if (isLoggedIn(req, path)) {
+            res.sendRedirect("/Lab8_war_exploded/servlet/home");
+        } else {
+            req.getRequestDispatcher(String.format(redirectUrl, vm.getView()))
+                    .forward(req, res);
         }
+    }
 
-        req.getRequestDispatcher(String.format(redirectUrl, vm.getView()))
-                .forward(req, res);
+    private boolean isPressedLoginFormButton(HttpServletRequest req, String path, ViewModel vm) {
+        return req.getMethod().equals("POST") && path.equals("/servlet/login") && vm.getView().equals("home");
+    }
 
+    private boolean isRegistered(HttpServletRequest req, String path) {
+        return req.getMethod().equals("POST") && path.equals("/servlet/register");
+    }
+
+    private boolean isNoRegistered(HttpServletRequest req, String path) {
+        return req.getMethod().equals("GET")
+                && (path.equals("/servlet/home") || path.equals("/servlet/user")
+                || path.equals("/servlet/admin") || path.equals("/servlet/403"))
+                && req.getSession().getAttribute("LOGGED_USER") == null;
+    }
+
+    private boolean isLoggedIn(HttpServletRequest req, String path) {
+        return req.getSession().getAttribute("LOGGED_USER") != null
+                && (path.equals("/servlet/register") || path.equals("/servlet/login"))
+                && req.getMethod().equals("GET");
     }
 
     private void process(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -69,5 +105,4 @@ public class MainServlet extends HttpServlet {
         ViewModel vm = controller.process(r);
         sendResponse(vm, req, res);
     }
-
 }

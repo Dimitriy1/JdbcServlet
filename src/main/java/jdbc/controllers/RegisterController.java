@@ -1,20 +1,27 @@
 package jdbc.controllers;
 
 import jdbc.NoUniqueException;
+import jdbc.model.Role;
+import jdbc.model.TypeOfRole;
 import jdbc.model.User;
+import jdbc.service.RoleService;
 import jdbc.service.UserService;
 import jdbc.web.Request;
 import jdbc.web.ViewModel;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static jdbc.encoder.PasswordEncoder.encrypt;
 
 public class RegisterController implements Controller {
     private UserService userService;
+    private RoleService roleService;
 
-    public RegisterController(UserService userService) {
+    public RegisterController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @Override
@@ -24,12 +31,18 @@ public class RegisterController implements Controller {
         String email = request.getParameterByName("signup-email");
         String name = request.getParameterByName("signup-user");
 
+        Set<Role>roles = new LinkedHashSet<>();
+        Role role = new Role(TypeOfRole.USER);
+        roles.add(role);
+        roleService.addRole(role);
+
         User user = new User();
         user.setLogin(login);
         user.setPassword(encrypt(password,"20"));
         user.setEmail(email);
         user.setName(name);
         user.setToken(getRandomToken());
+        user.setRoles(roles);
 
         if (userService.isLoggedIn(user.getLogin(), user.getPassword()) == null) {
             userService.insertUser(user);
