@@ -6,10 +6,16 @@ import jdbc.model.Role;
 import jdbc.model.TypeOfRole;
 import jdbc.model.User;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,12 +52,9 @@ public class UserFilter implements Filter {
         if (token == null) {
             if (path.equals("/servlet/login")
                     || path.equals("/servlet/register")
-                    || path.equals("/servlet/home")
-                    || path.equals("/servlet/user")
-                    || path.equals("/servlet/admin")
-                    || path.equals("/servlet/403")){
+                    || path.equals("/servlet/403")) {
                 processAuthorized(servletRequest, servletResponse, filterChain);
-            } else{
+            } else {
                 processUnAuthorized(req, res);
             }
         } else {
@@ -76,8 +79,8 @@ public class UserFilter implements Filter {
 
     private void processUnAuthorized(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/views/login.jsp")
-                .forward(req, res);
+        String redirectUrl = "/Lab8_war_exploded/servlet/login";
+        res.sendRedirect(redirectUrl);
     }
 
     private void processAuthorized(ServletRequest req, ServletResponse res, FilterChain chain)
