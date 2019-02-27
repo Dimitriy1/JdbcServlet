@@ -1,12 +1,36 @@
+CREATE TABLE user_role (
+user_id INT DEFAULT NULL,
+role_id INT DEFAULT NULL
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE user (
 id INT AUTO_INCREMENT,
 name VARCHAR(45),
 login VARCHAR(45),
 password VARCHAR(45),
 email VARCHAR(45),
-token  VARCHAR(90), 
+token varchar(45),
 PRIMARY KEY(id)
 )DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE role (
+id INT AUTO_INCREMENT,
+name VARCHAR(45),
+PRIMARY KEY(id)
+)DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE user_role ADD INDEX(user_id);
+ALTER TABLE user_role ADD INDEX(role_id);
+
+ALTER TABLE user_role
+ADD CONSTRAINT ur_user_fk
+FOREIGN KEY (user_id) REFERENCES user(id)
+ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE user_role
+ADD CONSTRAINT ur_role_fk
+FOREIGN KEY (role_id) REFERENCES role(id)
+ON UPDATE CASCADE ON DELETE CASCADE;
 
 CREATE TABLE developer(
 id INT AUTO_INCREMENT,

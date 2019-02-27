@@ -7,7 +7,7 @@ import java.util.Set;
 public class Project {
     private Integer id;
     private String name;
-    private String TypeOfProject;
+    private String typeOfProject;
     private double cost;
     private Customer customer;
     private Set<Developer> developers = new LinkedHashSet<>();
@@ -29,11 +29,11 @@ public class Project {
     }
 
     public String getTypeOfProject() {
-        return TypeOfProject;
+        return typeOfProject;
     }
 
     public void setTypeOfProject(String typeOfProject) {
-        TypeOfProject = typeOfProject;
+        this.typeOfProject = typeOfProject;
     }
 
     public double getCost() {
@@ -69,7 +69,7 @@ public class Project {
         return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", TypeOfProject='" + TypeOfProject + '\'' +
+                ", TypeOfProject='" + typeOfProject + '\'' +
                 ", cost=" + cost +
                 '}';
     }
@@ -82,11 +82,11 @@ public class Project {
         return Double.compare(project.cost, cost) == 0 &&
                 Objects.equals(id, project.id) &&
                 Objects.equals(name, project.name) &&
-                Objects.equals(TypeOfProject, project.TypeOfProject);
+                Objects.equals(typeOfProject, project.typeOfProject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, TypeOfProject, cost);
+        return Objects.hash(id, name, typeOfProject, cost);
     }
 }

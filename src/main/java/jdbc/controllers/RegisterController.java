@@ -9,8 +9,6 @@ import jdbc.service.UserService;
 import jdbc.web.Request;
 import jdbc.web.ViewModel;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static jdbc.encoder.PasswordEncoder.encrypt;
@@ -31,18 +29,13 @@ public class RegisterController implements Controller {
         String email = request.getParameterByName("signup-email");
         String name = request.getParameterByName("signup-user");
 
-        Set<Role>roles = new LinkedHashSet<>();
-        Role role = new Role(TypeOfRole.USER);
-        roles.add(role);
-        roleService.addRole(role);
-
         User user = new User();
         user.setLogin(login);
         user.setPassword(encrypt(password,"20"));
         user.setEmail(email);
         user.setName(name);
         user.setToken(getRandomToken());
-        user.setRoles(roles);
+        user.setRoles(roleService.getRoles());
 
         if (userService.isLoggedIn(user.getLogin(), user.getPassword()) == null) {
             userService.insertUser(user);
