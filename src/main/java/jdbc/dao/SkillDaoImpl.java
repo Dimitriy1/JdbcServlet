@@ -5,7 +5,6 @@ import jdbc.model.Developer;
 import jdbc.model.Language;
 import jdbc.model.Level;
 import jdbc.model.Skill;
-import jdbc.model.Table;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,8 +61,11 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(deleteSkills);
             preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+
             preparedStatement = connection.prepareStatement(deleteFromDeveloper_Skills);
             preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new MyException(e, "something went wrong");
         }
@@ -93,6 +95,7 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
                 preparedStatement = connection.prepareStatement(insertIntoDeveloper_Skills);
                 preparedStatement.setInt(1, developer.getId());
                 preparedStatement.setInt(2, skill.getId());
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new MyException(e, "something went wrong");
