@@ -83,7 +83,6 @@ public class CustomerDaoImpl extends AbstractDao implements CustomerDao {
                 preparedStatement.setDouble(4, project.getCost());
                 preparedStatement.executeUpdate();
             }
-            customer.setId(findMaxId(Table.CUSTOMER));
         } catch (SQLException e) {
             throw new MyException(e,"something went wrong");
         }

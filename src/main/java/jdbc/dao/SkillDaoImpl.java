@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,7 +28,8 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
 
     public void updateSkill(Skill skill) {
         final String updateSkill = "UPDATE skill SET language = ?, level = ? WHERE id = ?";
-        final String updateDeveloper_Skills = "UPDATE developer_skill SET developer_id = ? WHERE skill_id = ?";
+        final String deleteDeveloper_Skill = "DELETE FROM developer_skill WHERE skill_id = ?";
+        final String insertDeveloper_Skill = "INSERT INTO developer_skill (developer_id, skill_id) values (?, ?)";
 
         try {
             PreparedStatement preparedStatement = connection
@@ -37,16 +39,19 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
             preparedStatement.setInt(3, skill.getId());
             preparedStatement.executeUpdate();
 
+            preparedStatement = connection.prepareStatement(deleteDeveloper_Skill);
+            preparedStatement.setInt(1, skill.getId());
+            preparedStatement.executeUpdate();
+
             Set<Developer> developers = skill.getDevelopers();
             for (Developer developer : developers) {
-                preparedStatement = connection.prepareStatement(updateDeveloper_Skills);
+                preparedStatement = connection.prepareStatement(insertDeveloper_Skill);
                 preparedStatement.setInt(1, developer.getId());
                 preparedStatement.setInt(2, skill.getId());
                 preparedStatement.executeUpdate();
             }
-            skill.setId(findMaxId(Table.SKILL));
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -60,14 +65,16 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
             preparedStatement = connection.prepareStatement(deleteFromDeveloper_Skills);
             preparedStatement.setInt(1, id);
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
     public Skill findSkillById(Integer id) {
         final String findSkillById = "SELECT * FROM skill where id = " + id;
 
-        return getSkills(findSkillById).iterator().next();
+        Iterator<Skill> skillIterator = getSkills(findSkillById).iterator();
+
+        return skillIterator.hasNext() ? skillIterator.next() : null;
     }
 
     public void insertSkill(Skill skill) {
@@ -89,7 +96,7 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
             }
             skill.setId(findMaxId(Table.SKILL));
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -114,7 +121,7 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
             }
             for (Skill skill : skills) {
                 preparedStatement = connection.prepareStatement(findAllDevelopersOfConcreteSkill);
-                preparedStatement.setInt(1,skill.getId());
+                preparedStatement.setInt(1, skill.getId());
                 rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     Developer developer = new Developer();
@@ -129,7 +136,7 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
 
             return skills;
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 }

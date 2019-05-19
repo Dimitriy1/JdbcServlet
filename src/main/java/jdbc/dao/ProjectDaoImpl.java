@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,7 +28,8 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
 
     public void updateProject(Project project) {
         final String updateProject = "UPDATE project SET customer_id = ?, name = ?, type = ?, cost = ? WHERE id = ?";
-        final String updateDeveloper_Project = "UPDATE developer_project SET developer_id = ? WHERE project_id = ?";
+        final String deleteDeveloper_Project = "DELETE FROM developer_project WHERE project_id = ?";
+        final String insertDeveloper_Project = "INSERT INTO developer_project (developer_id, project_id) values (?, ?)";
 
         try {
             PreparedStatement preparedStatement = connection
@@ -39,22 +41,29 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
             preparedStatement.setInt(5, project.getId());
             preparedStatement.executeUpdate();
 
+            preparedStatement = connection.prepareStatement(deleteDeveloper_Project);
+            preparedStatement.setInt(1, project.getId());
+            preparedStatement.executeUpdate();
+
+
             Set<Developer> developers = project.getDevelopers();
             for (Developer developer : developers) {
-                preparedStatement = connection.prepareStatement(updateDeveloper_Project);
+                preparedStatement = connection.prepareStatement(insertDeveloper_Project);
                 preparedStatement.setInt(1, developer.getId());
                 preparedStatement.setInt(2, project.getId());
+                preparedStatement.executeUpdate();
             }
-            project.setId(findMaxId(Table.PROJECT));
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
     public Project findProjectById(Integer id) {
         final String findProjectById = "SELECT * FROM project where id = " + id;
 
-        return getProjects(findProjectById).iterator().next();
+        Iterator<Project> projectIterator = getProjects(findProjectById).iterator();
+
+        return projectIterator.hasNext() ? projectIterator.next() : null;
     }
 
     public void deleteProjectById(Integer id) {
@@ -68,7 +77,7 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
             statement = connection.createStatement();
             statement.executeUpdate(deleteFromDeveloper_Project);
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -92,9 +101,8 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
                 preparedStatement.setInt(2, project.getId());
                 preparedStatement.executeUpdate();
             }
-            project.setId(findMaxId(Table.PROJECT));
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -124,7 +132,7 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
             }
             for (Project project : projects) {
                 preparedStatement = connection.prepareStatement(findAllDevelopersOfConcreteProject);
-                preparedStatement.setInt(1,project.getId());
+                preparedStatement.setInt(1, project.getId());
                 rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     Developer developer = new Developer();
@@ -137,7 +145,7 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
                 }
 
                 preparedStatement = connection.prepareStatement(findCustomer);
-                preparedStatement.setInt(1,project.getId());
+                preparedStatement.setInt(1, project.getId());
                 rs = preparedStatement.executeQuery();
                 if (rs.next()) {
                     Customer customer = new Customer();
@@ -151,7 +159,7 @@ public class ProjectDaoImpl extends AbstractDao implements ProjectDao {
 
             return projects;
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 

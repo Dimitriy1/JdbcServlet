@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(findSumOfSalariesOfAllDevelopers);
-            preparedStatement.setInt(1,project.getId());
+            preparedStatement.setInt(1, project.getId());
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 return rs.getDouble("sumDevSalary");
@@ -39,7 +40,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
 
             return null;
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -84,8 +85,10 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
 
     public void updateDeveloper(Developer developer) {
         final String updateDeveloper = "UPDATE developer SET name = ?, age = ?, sex = ?, salary = ? WHERE id = ?";
-        final String updateDeveloper_Project = "UPDATE developer_project SET project_id = ?  WHERE developer_id = ?";
-        final String updateDeveloper_Skills = "UPDATE developer_skill SET skill_id = ? WHERE developer_id = ?";
+        final String deleteDeveloper_Project = "DELETE FROM developer_project WHERE developer_id = ?";
+        final String deleteDeveloper_Skill = "DELETE FROM developer_skill WHERE developer_id = ?";
+        final String insertDeveloper_Project = "INSERT INTO developer_project(developer_id, project_id) values (?, ?)";
+        final String insertDeveloper_Skill = "INSERT INTO developer_skill(developer_id, skill_id) values (?, ?)";
 
         try {
             PreparedStatement preparedStatement = connection
@@ -97,30 +100,40 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
             preparedStatement.setInt(5, developer.getId());
             preparedStatement.executeUpdate();
 
+            preparedStatement = connection.prepareStatement(deleteDeveloper_Project);
+            preparedStatement.setInt(1, developer.getId());
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement(deleteDeveloper_Skill);
+            preparedStatement.setInt(1, developer.getId());
+            preparedStatement.executeUpdate();
+
             Set<Project> projects = developer.getProjects();
             Set<Skill> skills = developer.getSkills();
             for (Project project : projects) {
-                preparedStatement = connection.prepareStatement(updateDeveloper_Project);
-                preparedStatement.setInt(1, project.getId());
-                preparedStatement.setInt(2, developer.getId());
+                preparedStatement = connection.prepareStatement(insertDeveloper_Project);
+                preparedStatement.setInt(1, developer.getId());
+                preparedStatement.setInt(2, project.getId());
                 preparedStatement.executeUpdate();
             }
             for (Skill skill : skills) {
-                preparedStatement = connection.prepareStatement(updateDeveloper_Skills);
-                preparedStatement.setInt(1, skill.getId());
-                preparedStatement.setInt(2, developer.getId());
+                preparedStatement = connection.prepareStatement(insertDeveloper_Skill);
+                preparedStatement.setInt(1, developer.getId());
+                preparedStatement.setInt(2, skill.getId());
                 preparedStatement.executeUpdate();
             }
-            developer.setId(findMaxId(Table.DEVELOPER));
+
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
     public Developer findDeveloperById(Integer id) {
         final String findDeveloper = "SELECT * FROM developer WHERE id = " + id;
 
-        return getDevelopers(findDeveloper).iterator().next();
+        Iterator<Developer> developerIterator = getDevelopers(findDeveloper).iterator();
+
+        return developerIterator.hasNext() ? developerIterator.next() : null;
     }
 
     public void deleteDeveloperById(Integer id) {
@@ -141,7 +154,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
             preparedStatement.setInt(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -178,7 +191,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
                 preparedStatement.execute();
             }
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 
@@ -211,7 +224,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
             }
             for (Developer developer : developers) {
                 preparedStatement = connection.prepareStatement(findAllProjectsOfConcreteDeveloper);
-                preparedStatement.setInt(1,developer.getId());
+                preparedStatement.setInt(1, developer.getId());
                 rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     Project project = new Project();
@@ -223,7 +236,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
                 }
 
                 preparedStatement = connection.prepareStatement(findAllSkillsOfConcreteDeveloper);
-                preparedStatement.setInt(1,developer.getId());
+                preparedStatement.setInt(1, developer.getId());
                 rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     Skill skill = new Skill();
@@ -236,7 +249,7 @@ public class DeveloperDaoImpl extends AbstractDao implements DeveloperDao {
 
             return developers;
         } catch (SQLException e) {
-            throw new MyException(e,"something went wrong");
+            throw new MyException(e, "something went wrong");
         }
     }
 }
