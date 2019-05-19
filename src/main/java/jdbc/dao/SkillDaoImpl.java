@@ -94,7 +94,6 @@ public class SkillDaoImpl extends AbstractDao implements SkillDao {
                 preparedStatement.setInt(1, developer.getId());
                 preparedStatement.setInt(2, skill.getId());
             }
-            skill.setId(findMaxId(Table.SKILL));
         } catch (SQLException e) {
             throw new MyException(e, "something went wrong");
         }
